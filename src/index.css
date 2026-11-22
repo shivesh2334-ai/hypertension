@@ -1,3 +1,17 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss" source(none);
+@source "./";
+
+.advisor-hero {
+  background:
+    radial-gradient(ellipse at 20% 0%, #4c1330 0%, transparent 65%),
+    #0f172a;
+}
+
+button, input, select, summary {
+  accent-color: #e11d48;
+}
+
+:focus-visible {
+  outline: 2px solid #fda4af;
+  outline-offset: 3px;
+}
