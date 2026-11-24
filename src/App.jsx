@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import GuidelineChat from "./GuidelineChat.jsx";
 import {
   Activity, AlertTriangle, HeartPulse, Stethoscope, Gauge,
   ClipboardList, ShieldAlert, Pill, CalendarClock, Ruler,
@@ -11,7 +12,7 @@ import {
 import { buildLocalAssessment, classify, ETHNICITY_OPTIONS, RED_FLAG_SYMPTOMS, TOD_SCREEN } from "./assessment.js";
 
 const TABS = [
-  ["advisor", "Advisor"], ["assessment", "BP assessment"], ["measurement", "Measurement"],
+  ["advisor", "Advisor"], ["chat", "Ask Claude"], ["assessment", "BP assessment"], ["measurement", "Measurement"],
   ["risk", "Risk and organ damage"], ["treatment", "Treatment"], ["urgent", "Urgent review"],
   ["guidelines", "NICE reference"],
 ];
@@ -239,6 +240,7 @@ export default function App() {
         </div>
       </nav>
       <main className="max-w-6xl mx-auto px-4 py-6 space-y-5">
+        <GuidelineChat active={tab === "chat"} />
         {tab === "advisor" && <p className="text-sm text-slate-300">
           Enter a reading for an instant rules-based assessment. Claude can add a second review on request. Use clinical judgement and local protocols.
         </p>}
