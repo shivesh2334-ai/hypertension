@@ -55,6 +55,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model: process.env.ANTHROPIC_MODEL || "claude-haiku-5-5",
         max_tokens: 2000,
+        thinking: { type: "disabled" },
         system,
         messages: [{ role: "user", content: question }],
       }),
