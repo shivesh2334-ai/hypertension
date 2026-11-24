@@ -12,7 +12,7 @@ import {
 import { buildLocalAssessment, classify, ETHNICITY_OPTIONS, RED_FLAG_SYMPTOMS, TOD_SCREEN } from "./assessment.js";
 
 const TABS = [
-  ["advisor", "Advisor"], ["chat", "Ask Claude"], ["assessment", "BP assessment"], ["measurement", "Measurement"],
+  ["assessment", "BP assessment"], ["chat", "Ask Claude"], ["measurement", "Measurement"],
   ["risk", "Risk and organ damage"], ["treatment", "Treatment"], ["urgent", "Urgent review"],
   ["guidelines", "NICE reference"],
 ];
@@ -107,7 +107,7 @@ function MeasurementGuidance() {
    MAIN APP
 --------------------------------------------------------------- */
 export default function App() {
-  const [tab, setTab] = useState("advisor");
+  const [tab, setTab] = useState("assessment");
   const [form, setForm] = useState({
     setting: "clinic", sys: "", dia: "", hr: "",
     age: "", sex: "male", ethnicity: ETHNICITY_OPTIONS[0],
@@ -138,7 +138,8 @@ export default function App() {
   );
   const analysis = result?.local === local ? result?.analysis : null;
   const failed = error?.form === form && error?.redFlags === redFlags;
-  const show = (id) => tab === "advisor" || tab === id;
+  const isAssessment = tab === "assessment";
+  const show = (id) => isAssessment || tab === id;
 
   async function runAnalysis() {
     setError(null); setResult(null);
@@ -225,7 +226,7 @@ export default function App() {
     <div className="min-h-screen bg-slate-950 text-slate-100">
       <header className="advisor-hero border-b border-slate-800">
         <div className="max-w-6xl mx-auto px-4 py-8">
-          <h1 className="font-serif text-4xl text-white">Hypertension Advisor</h1>
+          <h1 className="font-serif text-4xl text-white">Hypertension</h1>
           <p className="mt-2 text-sm text-slate-300">Adult clinical decision support · NICE NG136</p>
         </div>
       </header>
@@ -241,10 +242,10 @@ export default function App() {
       </nav>
       <main className="max-w-6xl mx-auto px-4 py-6 space-y-5">
         <GuidelineChat active={tab === "chat"} />
-        {tab === "advisor" && <p className="text-sm text-slate-300">
+        {isAssessment && <p className="text-sm text-slate-300">
           Enter a reading for an instant rules-based assessment. Claude can add a second review on request. Use clinical judgement and local protocols.
         </p>}
-        {show("assessment") && (
+        {isAssessment && (
         <section className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-8 bg-slate-900 border border-slate-700 rounded-sm p-6">
           <div className="space-y-5">
             <h2 className="font-serif text-lg font-semibold flex items-center gap-2">
@@ -413,10 +414,10 @@ export default function App() {
             <a href="/hypertension-guidance.pdf" target="_blank" rel="noreferrer">Guideline PDF ↗</a>
           </div>
         </ResultCard>}
-        {local && (
+        {local && (isAssessment || ["risk", "treatment", "urgent"].includes(tab)) && (
           <section aria-label="Rules-based assessment" className="space-y-4">
-            {tab === "advisor" && <h2 className="text-lg font-semibold">Rules-based assessment</h2>}
-            {show("assessment") && <ResultCard icon={<ClipboardList size={18} />} title="BP classification and confirmation">
+            {isAssessment && <h2 className="text-lg font-semibold">Rules-based assessment</h2>}
+            {isAssessment && <ResultCard icon={<ClipboardList size={18} />} title="BP classification and confirmation">
               <FieldRow label="Reading">{sysN}/{diaN} mmHg · {local.stage.label}</FieldRow>
               <FieldRow label="Next step">{local.confirmation}</FieldRow>
             </ResultCard>}
@@ -442,7 +443,7 @@ export default function App() {
         {!local && ["risk", "treatment"].includes(tab) && (
           <button className="text-sm text-rose-300 underline" onClick={() => setTab("assessment")}>Enter a valid adult BP reading to assess this case</button>
         )}
-        {tab === "advisor" && local && !local.sameDayReferral && !local.hasEmergencyFlag &&
+        {isAssessment && local && !local.sameDayReferral && !local.hasEmergencyFlag &&
           !local.severeNoRedFlag && !local.severeOutOfOffice && (
           <div className="space-y-2">
             <button onClick={runAnalysis} disabled={loading} className="flex items-center gap-2 rounded-lg bg-rose-900 px-4 py-3 text-white hover:bg-rose-800 disabled:opacity-60">
@@ -453,7 +454,7 @@ export default function App() {
           </div>
         )}
 
-        {tab === "advisor" && analysis && (
+        {isAssessment && analysis && (
           <section aria-label="Claude review" className="space-y-5">
             <h2 className="text-lg font-semibold">Claude review</h2>
             <ResultCard icon={<ClipboardList size={18} />} title="Diagnosing hypertension">
