@@ -8,7 +8,7 @@ Respond with ONLY a valid JSON object (no markdown fences, no prose outside JSON
   "same_day_referral": { "indicated": boolean, "reasons": [string], "narrative": string },
   "specialist_summary": string
 }
-Keep narratives to 2-4 dense clinical sentences citing NG136 recommendation numbers where relevant. This is decision support only — final judgement rests with the treating physician.`;
+Keep the whole JSON under 450 words. Use one concise sentence per narrative and short field values. Include only verified recommendation numbers. A single clinic reading is provisional. Treat local_engine_output as absent if not supplied. Never invent its findings or contradict yourself between fields. At age 55 and above, NICE generally uses a CCB for step 1 in adults without type 2 diabetes. Final judgement rests with the treating physician.`;
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
@@ -40,7 +40,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: process.env.ANTHROPIC_MODEL?.trim() || "claude-haiku-5-5",
-        max_tokens: 1800,
+        max_tokens: 2400,
         thinking: { type: "disabled" },
         system: SYSTEM_PROMPT,
         messages: [{ role: "user", content: JSON.stringify(packet) }],
