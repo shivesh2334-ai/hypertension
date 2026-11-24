@@ -167,7 +167,7 @@ export default function App() {
 
     try {
       const response = await fetch("/api/assessment", {
-        signal: AbortSignal.timeout(16000),
+        signal: AbortSignal.timeout(32000),
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(clinicalPacket),

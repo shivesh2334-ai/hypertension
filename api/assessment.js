@@ -26,28 +26,32 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Invalid clinical inputs" });
   }
 
-  const key = process.env.ANTHROPIC_API_KEY;
+  const key = process.env.ANTHROPIC_API_KEY?.trim();
   if (!key) return res.status(503).json({ error: "Claude review unavailable" });
 
   try {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
-      signal: AbortSignal.timeout(12000),
+      signal: AbortSignal.timeout(25000),
       headers: {
         "Content-Type": "application/json",
         "x-api-key": key,
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6",
+        model: process.env.ANTHROPIC_MODEL?.trim() || "claude-haiku-5-5",
         max_tokens: 1800,
         system: SYSTEM_PROMPT,
         messages: [{ role: "user", content: JSON.stringify(packet) }],
       }),
     });
-    if (!response.ok) return res.status(502).json({ error: "Claude review unavailable" });
+    if (!response.ok) {
+      console.warn("Claude assessment upstream status", response.status);
+      return res.status(502).json({ error: "Claude review unavailable" });
+    }
     return res.status(200).json(await response.json());
-  } catch {
+  } catch (error) {
+    console.warn("Claude assessment request failed", error?.name === "TimeoutError" ? "timeout" : "network or response error");
     return res.status(502).json({ error: "Claude review unavailable" });
   }
 }
